@@ -50,7 +50,7 @@ alke-wallet/
     └── img/
 
 
- ##  Autor
+##  Autor
 
 * **RakinARPG** - [GitHub Profile](https://github.com/RakinARPG)
 
