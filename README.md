@@ -29,6 +29,7 @@ Para ingresar y testear la aplicación, utiliza los siguientes datos en el formu
 * **Bootstrap:** Framework para el diseño responsivo y componentes (vía CDN).
 * **JavaScript:** Manejo de eventos, validación de login y lógica de la billetera.
 * **Visual Studio Code:** Entorno de desarrollo.
+* **jQuery** A modo práctica para aprender sintaxis
 
 ---
 
@@ -42,12 +43,16 @@ alke-wallet/
 ├── index.html          # Pantalla de inicio de sesión (Login)
 ├── home.html           # Dashboard o pantalla principal de la billetera
 ├── transacciones.html  # Historial o registro de movimientos
+├── sendmoney.html      # Interfas envio dinero a usuarios y registro de usuarios
 ├── css/                # Archivos de estilos personalizados
 │   └── estilos.css
-├── js/                 # Lógica en JavaScript
-│   └── script.js
-└── assets/             # Imágenes, iconos y otros recursos visuales
-    └── img/
+└── js/                 # Lógica en JavaScript
+    └── wallet.js
+    └── auth.js         # Lógica autentificación
+    └── nav.js          # Interacción y actualización del saldo
+    └── resumen.js      # Historial Financiero
+    └── transactions.js
+            
 
 ```
 
