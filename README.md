@@ -47,7 +47,7 @@ alke-wallet/
 ├── js/                 # Lógica en JavaScript
 │   └── script.js
 └── assets/             # Imágenes, iconos y otros recursos visuales
-    └── img/
+    └── img/```
 
 
 ---
