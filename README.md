@@ -50,9 +50,10 @@ alke-wallet/
     └── img/
 
 
+---
+
 ##  Autor
 
 * **RakinARPG** - [GitHub Profile](https://github.com/RakinARPG)
 
----
 *Este proyecto fue realizado con fines educativos y de práctica en desarrollo web.*
