@@ -1,143 +1,143 @@
-// =====================
-// SALDO
-// =====================
-let saldo = Number(localStorage.getItem('saldo')) || 0;
+$(document).ready(function() {
+    // =====================
+    // ESTADO INICIAL
+    // =====================
+    let saldo = Number(localStorage.getItem('saldo')) || 0;
+    let contactos = JSON.parse(localStorage.getItem('contactos')) || [
+        { id: "123", nombre: "Juan Pérez" },
+        { id: "456", nombre: "María García" }
+    ];
 
-// =====================
-// CONTACTOS
-// =====================
-let contactos = JSON.parse(localStorage.getItem('contactos')) || [];
+    // Actualizar saldo en Navbar al iniciar
+    actualizarSaldoUI();
 
-const contactSelect = document.getElementById('contactSelect');
+    function actualizarSaldoUI() {
+        $('#saldoNav').text(`Saldo: $${saldo.toLocaleString()}`);
+    }
 
-function actualizarContactos() {
-	if (!contactSelect) return;
-	contactSelect.innerHTML = `<option value="" disabled selected>-- Selecciona un contacto --</option>`;
-	contactos.forEach(c => {
-		const option = document.createElement('option');
-		option.value = c.id;
-		option.textContent = `${c.nombre} (${c.id})`;
-		contactSelect.appendChild(option);
-	});
-}
+    // =====================
+    // GESTIÓN DE CONTACTOS (jQuery)
+    // =====================
+    
+    // Filtro y Autocompletado
+    $('#buscarContacto').on('keyup', function() {
+        let query = $(this).val().toLowerCase().trim();
+        let $lista = $('#listaSugerencias');
+        let $btnAgregar = $('#btnAgregar');
+        
+        $lista.empty();
 
-actualizarContactos();
+        if (query.length > 0) {
+            let filtrados = contactos.filter(c => 
+                c.nombre.toLowerCase().includes(query) || c.id.includes(query)
+            );
+            
+            if (filtrados.length > 0) {
+                filtrados.forEach(c => {
+                    $lista.append(`<li class="list-group-item list-group-item-action" data-id="${c.id}" data-nombre="${c.nombre}">${c.nombre} (${c.id})</li>`);
+                });
+                $lista.slideDown(200); // Animación
+                $btnAgregar.fadeOut(100);
+            } else {
+                $lista.hide();
+                $btnAgregar.fadeIn(100);
+            }
+        } else {
+            $lista.hide();
+            $btnAgregar.fadeOut(100);
+        }
+    });
 
-// Botón para agregar nuevo contacto
-const addContactBtn = document.getElementById('addContactBtn');
-if (addContactBtn) {
-	addContactBtn.addEventListener('click', () => {
-		const nombreInput = document.getElementById('newContactName');
-		const idInput = document.getElementById('newContactId');
+    // Selección de contacto
+    $(document).on('click', '#listaSugerencias li', function() {
+        const id = $(this).data('id');
+        const nombre = $(this).data('nombre');
 
-		const nombre = nombreInput.value.trim();
-		const idAlke = idInput.value.trim();
+        $('#buscarContacto').val(nombre);
+        $('#contactoIdSeleccionado').val(id);
+        $('#contactoNombreSeleccionado').val(nombre);
+        
+        $('#listaSugerencias').fadeOut(200);
+    });
 
-		if (!nombre || !idAlke) {
-			alert('Completa el nombre y el ID del contacto');
-			return;
-		}
+    // Agregar nuevo contacto (Lección 5/6)
+    $('#btnAgregar').on('click', function() {
+        const nuevoNombre = $('#buscarContacto').val().trim();
+        const nuevoId = Math.floor(Math.random() * 1000000).toString(); // ID aleatorio para el ejemplo
 
-		if (contactos.find(c => c.id === idAlke)) {
-			alert('Este ID ya existe');
-			return;
-		}
+        if (nuevoNombre) {
+            contactos.push({ id: nuevoId, nombre: nuevoNombre });
+            localStorage.setItem('contactos', JSON.stringify(contactos));
+            
+            $('#contactoIdSeleccionado').val(nuevoId);
+            $('#contactoNombreSeleccionado').val(nuevoNombre);
+            
+            alert(`Contacto "${nuevoNombre}" agregado.`);
+            $(this).fadeOut(100);
+        }
+    });
 
-		contactos.push({ id: idAlke, nombre });
-		localStorage.setItem('contactos', JSON.stringify(contactos));
-		actualizarContactos();
+    // =====================
+    // DEPÓSITOS (jQuery)
+    // =====================
+    $('#depositForm').on('submit', function(e) {
+        e.preventDefault();
+        const amount = Number($('#amount').val());
 
-		nombreInput.value = '';
-		idInput.value = '';
+        if (amount > 0) {
+            saldo += amount;
+            localStorage.setItem('saldo', saldo);
+            actualizarSaldoUI();
+            saveTransaction('Depósito', amount);
+            
+            alert('¡Depósito exitoso!');
+            this.reset();
+        }
+    });
 
-		alert(`Contacto "${nombre}" agregado con ID ${idAlke}`);
-	});
-}
+    // =====================
+    // ENVÍOS (jQuery)
+    // =====================
+    $('#sendForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const amount = Number($('#sendAmount').val());
+        const destinoId = $('#contactoIdSeleccionado').val();
+        const destinoNombre = $('#contactoNombreSeleccionado').val();
 
-// =====================
-// DEPÓSITOS
-// =====================
-const depositForm = document.getElementById('depositForm');
-if (depositForm) {
-	depositForm.addEventListener('submit', e => {
-		e.preventDefault();
-		const amount = Number(document.getElementById('amount').value);
-		if (amount <= 0) {
-			alert('Ingresa un monto válido');
-			return;
-		}
+        if (!destinoId) {
+            alert('Por favor, selecciona un contacto de la lista o agrégalo.');
+            return;
+        }
 
-		saldo += amount;
-		localStorage.setItem('saldo', saldo);
+        if (amount > 0 && amount <= saldo) {
+            saldo -= amount;
+            localStorage.setItem('saldo', saldo);
+            actualizarSaldoUI();
 
-		alert('Depósito realizado con éxito');
-		depositForm.reset();
+            saveTransaction('Envío', amount, { nombre: destinoNombre, id: destinoId });
+            
+            alert(`Transferencia de $${amount} a ${destinoNombre} realizada.`);
+            this.reset();
+            $('#buscarContacto').val('');
+            $('#contactoIdSeleccionado').val('');
+        } else {
+            alert('Monto inválido o saldo insuficiente.');
+        }
+    });
 
-		// Actualizar navbar
-		if (typeof actualizarSaldoNav === 'function') {
-			actualizarSaldoNav();
-		}
-
-		saveTransaction('Depósito', amount);
-	});
-}
-
-// =====================
-// ENVÍOS
-// =====================
-const sendForm = document.getElementById('sendForm');
-if (sendForm) {
-	sendForm.addEventListener('submit', e => {
-		e.preventDefault();
-
-		const selectedId = contactSelect.value;
-		const amount = Number(document.getElementById('sendAmount').value);
-
-		if (!selectedId) {
-			alert('Selecciona un contacto');
-			return;
-		}
-
-		if (amount <= 0) {
-			alert('Ingresa un monto válido');
-			return;
-		}
-
-		if (amount > saldo) {
-			alert('Saldo insuficiente');
-			return;
-		}
-
-		const contacto = contactos.find(c => c.id === selectedId);
-
-		saldo -= amount;
-		localStorage.setItem('saldo', saldo);
-
-		alert(`Enviado $${amount} a ${contacto.nombre} (ID: ${contacto.id})`);
-		sendForm.reset();
-
-		// Actualizar navbar
-		if (typeof actualizarSaldoNav === 'function') {
-			actualizarSaldoNav();
-		}
-
-		saveTransaction('Envío', amount, contacto);
-	});
-}
-
-// =====================
-// GUARDAR MOVIMIENTO
-// =====================
-function saveTransaction(type, amount, contacto = {}) {
-	const movements = JSON.parse(localStorage.getItem('movimientos')) || [];
-
-	movements.push({
-		tipo: type,
-		monto: amount,
-		contactoNombre: contacto.nombre || '',
-		contactoId: contacto.id || '',
-		fecha: new Date().toLocaleString()
-	});
-
-	localStorage.setItem('movimientos', JSON.stringify(movements));
-}
+    // =====================
+    // GUARDAR MOVIMIENTO
+    // =====================
+    function saveTransaction(type, amount, contacto = {}) {
+        const movements = JSON.parse(localStorage.getItem('movimientos')) || [];
+        movements.push({
+            tipo: type,
+            monto: amount,
+            contactoNombre: contacto.nombre || '',
+            contactoId: contacto.id || '',
+            fecha: new Date().toLocaleString()
+        });
+        localStorage.setItem('movimientos', JSON.stringify(movements));
+    }
+});
