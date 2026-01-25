@@ -1,4 +1,4 @@
-# Alke Wallet 💰
+# Alke Wallet
 
 **Alke Wallet** es una aplicación de billetera virtual interactiva diseñada para que los usuarios puedan gestionar sus finanzas personales, revisar saldos y visualizar movimientos de manera rápida y sencilla.
 
