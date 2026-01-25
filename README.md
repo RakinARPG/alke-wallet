@@ -15,7 +15,7 @@
 
 ## Credenciales de Acceso
 
-Para ingresar y testear la aplicación, utiliza los siguientes datos en el formulario de inicio de sesión:
+Para ingresar y testear la aplicación descargar zip y abrir index.html, luego utilizar siguientes datos en el formulario de inicio de sesión:
 
 * **Usuario:** `admin`
 * **Contraseña:** `1234`
